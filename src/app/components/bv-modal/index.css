@@ -1,0 +1,77 @@
+.wrap-box{
+    position: fixed;
+    overflow: auto;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    outline: 0;
+    background-color:rgba(0, 0, 0, 0.20);
+}
+
+.innerStyle{
+    width: 500px;
+    height: auto;
+    background-color: rgb(163, 198, 255,0.8);
+    padding: 10;
+    font-family: 'Karla';
+    font-style: normal;
+    font-weight: 400;
+    padding: 0px 10px 10px 10px;
+    border-radius: 5px;
+
+    position: relative;
+    width: auto;
+    margin: 0 auto;
+    top: 10%;
+}
+
+.outterStyle{
+    background-color: white;
+    padding:2px;
+    border-radius: 5px;
+    position: relative;
+}
+
+.titleStyle{ 
+    text-align: center;
+    font-weight: bold; 
+    height:30px;
+    line-height: 30px;
+}
+
+.headerStyle{
+    border: 1px solid;
+    border-color: #ffadd2;
+    margin-bottom: 2px;
+    padding: 1px;
+}
+
+.footerStyle{
+    background-color: white;
+}
+
+ /* React animation */
+.example-enter {
+    transform:scale(0.01);
+}
+.example-enter.example-enter-active {
+	transition: all 0.3s ease-in-out;
+    transform: scale(1.0);
+}
+.example-leave {
+	transform: scale(1.0);
+}
+.example-leave.example-leave-active {
+	transition: all 0.3s ease-in-out;
+    transform: scale(0.01);
+}
+.example-appear {
+    transform:scale(0.01);
+  }
+  
+  .example-appear.example-appear-active {
+    transition: all 0.3s ease-in-out;
+    transform: scale(1.0);
+  }

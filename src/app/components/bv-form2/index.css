@@ -1,0 +1,29 @@
+
+
+.container1{
+    width: 500px;
+    height: auto;
+    background-color: rgb(163, 198, 255,0.4);
+    padding: 10;
+    font-family: 'Karla';
+    font-style: normal;
+    font-weight: 400;
+    padding: 0px 10px 10px 10px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 30px grey;
+}
+
+.bodyStyle{
+    min-height: 200px;
+    background-color: white;
+}
+
+.titleStyle{ 
+    text-align: center;
+    font-weight: bold; 
+    height:30px;
+    line-height: 30px;
+}
+
+
+
