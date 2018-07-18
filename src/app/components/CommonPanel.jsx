@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 
 export default class CommonPanel extends Component {
   constructor(props) {
@@ -10,8 +10,8 @@ export default class CommonPanel extends Component {
       <div
         {...this.props}
         style={{
-          border: '1px solid',
-          borderColor: '#ffadd2',
+          border: "1px solid",
+          borderColor: "#ffadd2",
           ...this.props.style,
         }}
       >

@@ -7,6 +7,7 @@ export default class CriteriaComponent extends Component {
     super(props);
     this.state = { isEditing: false };
     this.onChangeHandler = this.onChangeHandler.bind(this);
+    this.hasExsit = this.hasExsit.bind(this);
   }
 
   componentDidMount() {
@@ -33,18 +34,19 @@ export default class CriteriaComponent extends Component {
 
   onChangeHandler(e) {
     // if current is checked
-    if (e.currentTarget.checked) {
-      // check whehter is checkable
-      if (this.props.isCheckable()) {
-        this.props.addSelectedList();
-      } else {
-        // not checkable
-        e.currentTarget.checked = false;
-      }
-    } else {
+    if (e.currentTarget.checked && this.props.isCheckable()) {
+      this.props.saveSelectedCriteria(this.props.value);
+    } else if (!e.currentTarget.checked) {
       // unchecked
-      this.props.removeSelectedList();
+      this.props.removeSelectedCriteria(this.props.value);
     }
+  }
+
+  hasExsit() {
+    let found = this.props.select_criteria.find((c) => {
+      return c.criteria_id === this.props.value.criteria_id;
+    });
+    return !!found;
   }
 
   render() {
@@ -71,6 +73,7 @@ export default class CriteriaComponent extends Component {
         {this.props.editable && (
           <input
             type="checkbox"
+            checked={this.hasExsit() ? "true" : ""}
             style={{ float: "left", margin: 5 }}
             ref={(ref) => {
               this.checkbox = ref;

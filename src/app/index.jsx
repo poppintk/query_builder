@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import shallowCompare from "react-addons-shallow-compare";
 import DragPanel from "./dragPanel";
-import DropPanel from "./dropPanel";
+import DropPanel from "../containers/dropPanelContainer";
 import BvModal from "./components/bv-modal";
 import { Button } from "antd";
 
@@ -17,7 +17,6 @@ export default class BvQueryBuilder extends Component {
   }
 
   render() {
-    console.log(this.props.root);
     const header = (
       <div style={{ display: "flex", height: 20 }}>
         <Button title="Test filter" icon="filter" style={{ height: 19 }} />
@@ -40,10 +39,8 @@ export default class BvQueryBuilder extends Component {
             paddingRight: 5,
             marginLeft: 10,
           }}
-          onClick={(e) => this.ref.createAnd()}
-          onDoubleClick={() => {
-            this.props.changeTest(5);
-            this.forceUpdate();
+          onClick={(e) => {
+            this.props.createAndRelation(this.props.root);
           }}
         >
           AND
@@ -79,7 +76,7 @@ export default class BvQueryBuilder extends Component {
           }}
         />
         <DropPanel
-          root={this.props.root.toJS()}
+          root={this.props.root}
           ref={(ref) => (this.ref = ref)}
           style={{
             height: h,

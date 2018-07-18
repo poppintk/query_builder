@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 import { Icon, Switch, Button } from "antd";
 import BvModal from "./components/bv-modal";
-import DropPanel from "./dropPanel";
+import DropPanel from "../containers/dropPanelContainer";
 import DragPanel from "./dragPanel";
 import BvForm from "./components/bv-form";
 
@@ -15,6 +15,8 @@ export default class SubFilter extends Component {
     this.state = {
       showSub: false,
       showPanel: false,
+      offset_top: 0,
+      offset_left: 0,
     };
     this.onCancel = this.onCancel.bind(this);
     this.showSubFilterEditor = this.showSubFilterEditor.bind(this);
@@ -26,6 +28,7 @@ export default class SubFilter extends Component {
     // offset = offset + 100;
     offset_top = offset_top + 30;
     offset_left += 20;
+    this.setState({ offset_top, offset_left });
   }
   componentWillUnmount() {
     offset_top = offset_top - 30;
@@ -81,7 +84,7 @@ export default class SubFilter extends Component {
             paddingRight: 5,
             marginLeft: 10,
           }}
-          onClick={(e) => this.ref.createAnd()}
+          onClick={(e) => this.props.createAndRelation(this.props.root)}
         >
           AND
         </Button>
@@ -162,8 +165,8 @@ export default class SubFilter extends Component {
           style={{
             width: 800,
             position: "relative",
-            left: offset_left,
-            top: offset_top,
+            left: this.state.offset_left,
+            top: this.state.offset_top,
           }}
           visible={this.state.showSub}
           onCancel={this.onCancel}
