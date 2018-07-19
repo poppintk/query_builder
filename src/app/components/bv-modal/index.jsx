@@ -34,11 +34,7 @@ export default class BvModal extends Component {
             >
               <div
                 className="innerStyle"
-                {...this.props}
-                title={undefined}
-                visible={undefined}
-                hasfooter={undefined}
-                create_criteria={undefined}
+                style={{ ...this.props.style }}
                 role="presentation"
               >
                 <div className="titleStyle">

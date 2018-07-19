@@ -8,16 +8,15 @@ import {
 
 import {
   CHANGE_TEST,
-  CREATE_AND_RELATION,
   SAVE_CRITERIA,
   EMPTY_CRITERIA,
   REMOVE_ITEM_CRITERIA,
+  UPDATE_TREE
 } from "../actions/treeActions";
 import {
   constructTree,
   findNodeByCriteria,
-  removeCriteria,
-  findSubTreePath
+  removeCriteria
 } from "./util";
 
 const uuidv1 = require("uuid/v1");
@@ -37,7 +36,6 @@ const treeReducer = (state = Immutable.fromJS(initState), action) => {
     case SAVE_CRITERIA:
       arr = state.get('select_criteria');
       new_arr = arr.push(action.payload);
-      console.log(new_arr.toJS())
       return state.set('select_criteria', Immutable.List(new_arr));
 
     case EMPTY_CRITERIA:
@@ -52,19 +50,17 @@ const treeReducer = (state = Immutable.fromJS(initState), action) => {
       console.log(new_arr)
       return state.set('select_criteria', Immutable.List(new_arr));
 
-    case CREATE_AND_RELATION:
-      arr = state.get('select_criteria');
-      let root = state.get('tree').toJS();
-      // clone to root
-      let newRoot = JSON.parse(JSON.stringify(root))
-
-      let update_tree;
-      update_tree = createAnd(action.payload.tree, arr.toJS(), newRoot);
-      if (update_tree) {
-        return state.set('select_criteria', Immutable.List([])).set('tree', Immutable.fromJS(update_tree));
-      } else {
-        return state;
-      }
+    case UPDATE_TREE:
+      // get a clone of root tree
+      let copy_root = JSON.parse(JSON.stringify(state.get('tree')));
+      let target = findSubTree(action.payload, copy_root);
+      console.log(target);
+      console.log(action.payload)
+      target.values = action.payload.values;
+      target.children = action.payload.children;
+      target.subFilter = action.payload.subFilter;
+      console.log(copy_root)
+      return state.set('tree', Immutable.fromJS(copy_root));
 
     default:
       return state;
@@ -72,34 +68,45 @@ const treeReducer = (state = Immutable.fromJS(initState), action) => {
 };
 
 
-/**SubFilter
- * TODO bugs
+/**
+ * recursively loop over node and return the reference to root with id same as target_tree
  */
-
-const findSubTree = (currentTree, root) => {
-  if (root.id === currentTree.id) {
+const findSubTree = (target_tree, root) => {
+  if (target_tree.id === root.id) {
     return root;
   }
-  let arr;
-  if (root.children.length) {
-    arr = root.children.map((c) => {
-      return findSubTree(currentTree, c);
+  // find node with subfilter
+  let node = findNodeWithSubFilter(root);
+  if (node) {
+    let arr = node.subFilter.map((sub_tree) => {
+      return findSubTree(target_tree, sub_tree)
     });
-    return arr.reduce((acc, curr) => {
+    let ret = arr.reduce((acc, curr) => {
       return acc || curr;
     });
-
+    return ret;
   }
+  return;
+}
 
-  if (root.subFilter.length) {
-    arr = root.subFilter.map((c) => {
-      return findSubTree(currentTree, c);
-    });
-    return arr.reduce((acc, curr) => {
-      return acc || curr;
-    });
+/**
+ * recursively loop over node and return the node with subfilter in it
+ */
+const findNodeWithSubFilter = (node) => {
+  if (node.subFilter.length) {
+    return node;
+  } else {
+    if (node.children.length) {
+      let arr = node.children.map((n) => {
+        return findNodeWithSubFilter(n);
+      });
+      let ret = arr.reduce((acc, curr) => {
+        return acc || curr;
+      });
+      return ret;
+    }
+    return;
   }
-
 }
 
 // modifiy on root and return it
@@ -108,7 +115,8 @@ const createAnd = (currentTree, select_criteria, root) => {
   if (root.id === currentTree.id) {
     target = root;
   } else {
-    // find currentTree in root and return it
+    // find currentTree in root and return reference to it,
+    // we going to modify on reference
     target = findSubTree(currentTree, root);
   }
   if (select_criteria.length > 1) {

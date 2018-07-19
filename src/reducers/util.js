@@ -30,31 +30,6 @@ export const constructTree = (data) => {
 };
 
 /**
- * @param subTree Tree object
- * @param Tree Tree object
- * return node with given criteria
- */
-export const findSubTreePath = (subTree, Tree, path = []) => {
-  let res = Tree.subFilter.find((s) => s.id === subTree.id);
-  if (res) {
-    path.push('subFilter');
-    return path;
-  } else {
-    path.push('children');
-    let arr = Tree.children.map((sub_tree, k) => {
-      path.push(k);
-      return findSubTreePath(sub_tree, Tree, path);
-    });
-    return arr.reduce((acc, curr) => {
-      return acc || curr;
-    });
-    return res;
-  }
-}
-
-
-
-/**
  * @param node Tree object
  * @param criteria Criteria object
  * return node with given criteria
@@ -79,7 +54,7 @@ export const findNodeByCriteria = (node, criteria) => {
 
 /**
  * @param node Tree object
- * @param subFilter Criteria object
+ * @param subFilter sub Tree object
  * return node with given subfilter
  */
 export const findNodeBySubfilter = (node, subFilter) => {
@@ -276,4 +251,30 @@ export const findParentNode = (node, parent_id) => {
     }
     return res;
   }
+}
+
+/**
+ *  Generate SQL string base on current tree nodes
+ * @param node Tree object
+ */
+const buildSQL = (node, res = "SELECT (???) FROM (????) WHERE ") => {
+  let valueString = "";
+  node.values.forEach((v, k) => {
+    valueString += `${v.criteria_id}${v.expression}${v.value}`;
+    if (k + 1 !== node.values.length) {
+      valueString += ` ${node.relation_type} `;
+    }
+  });
+  // has chidlren node
+  if (node.children.length) {
+    node.children.forEach((n, k) => {
+      if (!valueString) {
+        valueString += ` ( ${this.buildSQL(n, "")} )`;
+      } else {
+        valueString += ` ${node.relation_type} (${this.buildSQL(n, "")})`;
+      }
+    });
+  }
+  res += valueString;
+  return res;
 }

@@ -6,7 +6,7 @@ import {
 } from "redux";
 import SubFilter from "../app/SubFilter";
 import {
-    createAndRelation
+    updateTree
 } from "../actions/treeActions";
 
 // const mapStateToProps = (state) => {
@@ -16,7 +16,7 @@ import {
 // };
 const mapDispatchToProps = (dispatch) => {
     return bindActionCreators({
-            createAndRelation
+            updateTree
         },
         dispatch
     );

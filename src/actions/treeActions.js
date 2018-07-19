@@ -1,9 +1,9 @@
 export const CHANGE_TEST = "CHANGE_TEST";
 
-export const CREATE_AND_RELATION = "CREATE_AND_RELATION";
 export const SAVE_CRITERIA = "SAVE_CRITERIA";
 export const EMPTY_CRITERIA = "EMPTY_CRITERIA";
-export const REMOVE_ITEM_CRITERIA = "REMOVE_ITEM_CRITERIA"
+export const REMOVE_ITEM_CRITERIA = "REMOVE_ITEM_CRITERIA";
+export const UPDATE_TREE = "UPDATE_TREE";
 
 export const changeTest = (num) => {
   return {
@@ -35,13 +35,10 @@ export const removeSelectedCriteria = (criteria) => {
   }
 }
 
-export const createAndRelation = (tree, select_criteria) => {
+export const updateTree = (sub_tree) => {
   return {
-    type: CREATE_AND_RELATION,
-    payload: {
-      tree,
-      select_criteria
-    },
+    type: UPDATE_TREE,
+    payload: sub_tree,
     error: null,
   }
 }

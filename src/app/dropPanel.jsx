@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { message } from "antd";
 import CommonPanel from "./components/CommonPanel";
-import Node from "./model/node";
 import CriteriaComponent from "../containers/criteriaComponentCtn";
 import ShowModal from "./component-selector/selectModal";
 
@@ -16,25 +15,28 @@ export default class DropPanel extends Component {
       sql: null,
       tree_copy: this.copyTree(this.props.root),
     };
-
     this.deleteHandler = this.deleteHandler.bind(this);
     this.isCheckable = this.isCheckable.bind(this);
     this.restoreTree = this.restoreTree.bind(this);
-    this.updateTree = this.updateTree.bind(this);
-    this.getCurrentTree = this.getCurrentTree.bind(this);
 
     this.dragOverHandler = this.dragOverHandler.bind(this);
     this.dragLeaveHandler = this.dragLeaveHandler.bind(this);
-    this.updateDropPanel = this.updateDropPanel.bind(this);
     this.createAnd = this.createAnd.bind(this);
   }
 
   componentWillUnmount() {
     this.props.emptySelectedCriteria();
   }
-  componentWillMount() {
+
+  componentDidMount() {
     this.props.emptySelectedCriteria();
   }
+
+  // static getDerivedStateFromProps(props, state) {
+  //   let copy_root = JSON.parse(JSON.stringify(props.root));
+  //   state.tree_copy = copy_root;
+  //   return state;
+  // }
 
   copyTree(tree) {
     return JSON.parse(JSON.stringify(tree));
@@ -44,18 +46,10 @@ export default class DropPanel extends Component {
     this.setState({ tree_copy: this.copyTree(this.props.root) });
   }
 
-  getCurrentTree() {
-    return this.props.root;
-  }
-
-  updateTree(tree) {
-    console.log(tree);
-  }
-
   createAnd() {
     if (this.props.select_criteria.length > 1) {
       const found_node = this.findNodeByCriteria(
-        this.props.root,
+        this.props.tree_copy,
         this.props.select_criteria[0]
       );
       if (
@@ -80,8 +74,7 @@ export default class DropPanel extends Component {
         });
         found_node.children.push(new_node);
         new_node.parent_id = found_node.id;
-        console.log(found_node);
-        this.forceUpdate();
+        this.props.emptySelectedCriteria();
       } else {
         message.warn("Action forbidden: illegal operation");
       }
@@ -102,7 +95,7 @@ export default class DropPanel extends Component {
       return true;
     } else {
       let res = this.findNodeByCriteria(
-        this.props.root,
+        this.props.tree_copy,
         this.props.select_criteria[0]
       );
       if (res.id === node.id) {
@@ -122,43 +115,13 @@ export default class DropPanel extends Component {
     this.removeCriteria(criteria, node);
     // after move, if tree has no children and values, delete this
     if (
-      !this.props.root.children.length &&
-      !this.props.root.values.length &&
-      !this.props.root.subFilter.length
+      !this.props.tree_copy.children.length &&
+      !this.props.tree_copy.values.length &&
+      !this.props.tree_copy.subFilter.length
     ) {
       this.setState({ tree_copy: null });
-      console.log(this.state.tree_copy);
+      console.log(this.props.tree_copy);
     }
-    this.forceUpdate();
-  }
-
-  /**
-   *  Generate SQL string base on current tree nodes
-   * @param node Tree object
-   */
-  buildSQL(node, res = "SELECT (???) FROM (????) WHERE ") {
-    let valueString = "";
-    node.values.forEach((v, k) => {
-      valueString += `${v.criteria_id}${v.expression}${v.value}`;
-      if (k + 1 !== node.values.length) {
-        valueString += ` ${node.relation_type} `;
-      }
-    });
-    // has chidlren node
-    if (node.children.length) {
-      node.children.forEach((n, k) => {
-        if (!valueString) {
-          valueString += ` ( ${this.buildSQL(n, "")} )`;
-        } else {
-          valueString += ` ${node.relation_type} (${this.buildSQL(n, "")})`;
-        }
-      });
-    }
-    res += valueString;
-    return res;
-  }
-
-  updateDropPanel() {
     this.forceUpdate();
   }
 
@@ -176,7 +139,6 @@ export default class DropPanel extends Component {
         this.setState({ visible: true });
         this.dragpanel_data = JSON.parse(e.dataTransfer.getData("dragpanel"));
         this.destNode = destNode;
-
         //TODO: call backend api generate a id
       } catch (err) {
         console.log(err);
@@ -191,7 +153,7 @@ export default class DropPanel extends Component {
         // console.log('---------------');
         // console.log(dragItem);
         // console.log(destNode);
-        found_node = this.findNodeByCriteria(this.props.root, dragItem);
+        found_node = this.findNodeByCriteria(this.props.tree_copy, dragItem);
         if (found_node.id !== destNode.id) {
           // remove dragItem from tree
           this.removeCriteria(dragItem, found_node);
@@ -200,7 +162,7 @@ export default class DropPanel extends Component {
         }
       } else {
         // drag from subFilter
-        found_node = this.findNodeBySubfilter(this.props.root, dragItem);
+        found_node = this.findNodeBySubfilter(this.props.tree_copy, dragItem);
         if (found_node.id !== destNode.id) {
           // remove dragItem from tree
           this.removeSubfilter(dragItem, found_node);
@@ -260,7 +222,7 @@ export default class DropPanel extends Component {
 
   /**
    * @param node Tree object
-   * @param subFilter Criteria object
+   * @param subFilter subTree object
    * return node with given subfilter
    */
   findNodeBySubfilter(node, subFilter) {
@@ -298,7 +260,7 @@ export default class DropPanel extends Component {
       if (allow_merge) {
         // find parent Node
         let parent_node = this.findParentNode(
-          this.props.root,
+          this.props.tree_copy,
           found_node.parent_id
         );
 
@@ -374,7 +336,7 @@ export default class DropPanel extends Component {
       if (allow_merge) {
         // find parent Node
         let parent_node = this.findParentNode(
-          this.props.root,
+          this.props.tree_copy,
           found_node.parent_id
         );
 
@@ -494,7 +456,6 @@ export default class DropPanel extends Component {
             value={v}
             deleteHandler={() => this.deleteHandler(node, v)}
             isCheckable={() => this.isCheckable(node)}
-            updateDropPanel={() => this.updateDropPanel()}
           >
             {v.criteria_id}
             {v.expression}
@@ -509,7 +470,6 @@ export default class DropPanel extends Component {
         return node.subFilter.map((n, k) => {
           return (
             <SubFilter
-              updateTree={() => this.updateTree(n)}
               root={n}
               key={k}
               editable={this.props.editable}
@@ -517,12 +477,12 @@ export default class DropPanel extends Component {
                 this.removeSubfilter(n, node);
                 // after move, if tree has no children and values, delete this
                 if (
-                  !this.props.root.children.length &&
-                  !this.props.root.values.length &&
-                  !this.props.root.subFilter.length
+                  !this.props.tree_copy.children.length &&
+                  !this.props.tree_copy.values.length &&
+                  !this.props.tree_copy.subFilter.length
                 ) {
                   this.setState({ tree_copy: null });
-                  console.log(this.state.tree_copy);
+                  console.log(this.props.tree_copy);
                 }
                 this.forceUpdate();
               }}
@@ -644,7 +604,6 @@ export default class DropPanel extends Component {
    * Render function
    */
   render() {
-    console.log(this.props);
     return (
       <CommonPanel
         style={{ ...this.props.style }}
@@ -654,7 +613,7 @@ export default class DropPanel extends Component {
         onDragLeave={(e) => this.dragLeaveHandler(e)}
       >
         <div style={{ margin: "5%", width: "90%" }}>
-          {this.props.root && this.display(this.props.root)}
+          {this.props.tree_copy && this.display(this.props.tree_copy)}
         </div>
         {this.props.editable && (
           <ShowModal

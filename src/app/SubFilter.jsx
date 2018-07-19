@@ -24,12 +24,14 @@ export default class SubFilter extends Component {
     this.dragStartHandler = this.dragStartHandler.bind(this);
     this.deleteSubfilter = this.deleteSubfilter.bind(this);
   }
+
   componentDidMount() {
     // offset = offset + 100;
     offset_top = offset_top + 30;
     offset_left += 20;
     this.setState({ offset_top, offset_left });
   }
+
   componentWillUnmount() {
     offset_top = offset_top - 30;
     offset_left -= 20;
@@ -84,7 +86,7 @@ export default class SubFilter extends Component {
             paddingRight: 5,
             marginLeft: 10,
           }}
-          onClick={(e) => this.props.createAndRelation(this.props.root)}
+          onClick={(e) => this.ref.getWrappedInstance().createAnd()}
         >
           AND
         </Button>
@@ -118,6 +120,7 @@ export default class SubFilter extends Component {
         />
         <DropPanel
           root={this.props.root}
+          tree_copy={JSON.parse(JSON.stringify(this.props.root))}
           editable={true}
           ref={(ref) => (this.ref = ref)}
           style={{
@@ -170,6 +173,10 @@ export default class SubFilter extends Component {
           }}
           visible={this.state.showSub}
           onCancel={this.onCancel}
+          onOk={() => {
+            let update_tree = this.ref.getWrappedInstance().state.tree_copy;
+            this.props.updateTree(update_tree);
+          }}
         >
           {editableBody}
         </BvModal>
@@ -224,6 +231,7 @@ const NonEditableBody = (props) => {
           <DropPanel
             editable={false}
             root={props.root}
+            tree_copy={JSON.parse(JSON.stringify(props.root))}
             style={{
               height: "auto",
               maxHeight: 300,

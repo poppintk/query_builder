@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import shallowCompare from "react-addons-shallow-compare";
 import DragPanel from "./dragPanel";
 import DropPanel from "../containers/dropPanelContainer";
 import BvModal from "./components/bv-modal";
@@ -40,7 +39,7 @@ export default class BvQueryBuilder extends Component {
             marginLeft: 10,
           }}
           onClick={(e) => {
-            this.props.createAndRelation(this.props.root);
+            this.ref.getWrappedInstance().createAnd();
           }}
         >
           AND
@@ -77,6 +76,7 @@ export default class BvQueryBuilder extends Component {
         />
         <DropPanel
           root={this.props.root}
+          tree_copy={JSON.parse(JSON.stringify(this.props.root))}
           ref={(ref) => (this.ref = ref)}
           style={{
             height: h,
@@ -94,6 +94,10 @@ export default class BvQueryBuilder extends Component {
         style={{ width: 800 }}
         visible={this.state.show_form}
         onCancel={this.onCancel}
+        onOk={() => {
+          let update_tree = this.ref.getWrappedInstance().state.tree_copy;
+          this.props.updateTree(update_tree);
+        }}
       >
         {body}
       </BvModal>

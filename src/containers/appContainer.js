@@ -7,7 +7,7 @@ import {
 import BvQueryBuilder from "../app";
 import {
   changeTest,
-  createAndRelation
+  updateTree
 } from "../actions/treeActions";
 
 const mapStateToProps = (state) => {
@@ -18,7 +18,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return bindActionCreators({
       changeTest,
-      createAndRelation
+      updateTree
     },
     dispatch
   );
